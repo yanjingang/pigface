@@ -1,6 +1,7 @@
 ## 人脸识别
+http://blog.yanjingang.com/?p=2422
 
-### 方式一：模型训练
+### 方式一：模型训练（每个人需要300+照片）
 捕获摄像头中的人脸:  
 ```
 python face.py camera_face yan
@@ -23,7 +24,7 @@ python face.py face_sorting
 ```
  
 
-### 方式二：face embedding距离比对
+### 方式二：face embedding距离比对（每人只需要一张照片即可，facenet识别速度稍慢）
 使用face_embedding方式建立FaceDB并识别人脸:  
 ```
 python face.py face_embedding
@@ -38,7 +39,7 @@ python infer.py
 ```
 
 
-### 方式三：基于face_recognition的embedding距离比对
+### 方式三：基于face_recognition的embedding距离比对([推荐]每人只需要一张照片即可，识别速度较快)
 使用face_recognition库建立FaceDB并识别人脸:  
 ```
 python face.py face_recognition
