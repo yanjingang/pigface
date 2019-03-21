@@ -17,14 +17,33 @@ python face.py image_face data/facedb/test/2-1.png
 ```
 python face.py train_data
 ```
+人脸图片分拣到不同目录
+```
+python face.py face_sorting
+```
  
 
 ### 方式二：face embedding距离比对
-使用face_embedding方式建立fFaceDB并识别人脸:  
+使用face_embedding方式建立FaceDB并识别人脸:  
 ```
 python face.py face_embedding
+```
+查询FaceDB：       
+```
+python face.py get_facedb
 ```
 追踪摄像头中的人脸并与FaceDB对比:  
 ```
 python infer.py
+```
+
+
+### 方式三：基于face_recognition的embedding距离比对
+使用face_recognition库建立FaceDB并识别人脸:  
+```
+python face.py face_recognition
+```
+追踪摄像头中的人脸并与FaceDB对比:  
+```
+python face.py face_recognition_camera
 ```
