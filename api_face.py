@@ -4,7 +4,7 @@
 File: api_face.py
 Desc: 人脸识别 API 封装
 Demo: 
-    cd /home/work/piglab/webservice/service/ && nohup python api_face.py > log/api_face.log &
+    nohup python api_face.py > log/api_face.log &
     
     http://www.yanjingang.com:8025/piglab/face?img_file=/home/work/piglab/machinelearning/image/face/data/facedb/test/1.png
 
