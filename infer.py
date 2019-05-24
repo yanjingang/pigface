@@ -25,7 +25,7 @@ CUR_PATH = os.path.dirname(os.path.abspath(__file__))
 BASE_PATH = os.path.realpath(CUR_PATH + '/../../../')
 sys.path.append(BASE_PATH)
 
-from machinelearning.lib import utils
+from dp import utils
 import train
 from face import Face, FaceEmbedding, FaceRecognition
 

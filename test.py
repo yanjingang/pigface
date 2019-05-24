@@ -13,7 +13,7 @@ CUR_PATH = os.path.dirname(os.path.abspath(__file__))
 BASE_PATH = os.path.realpath(CUR_PATH + '/../../../')
 sys.path.append(BASE_PATH)
 
-from machinelearning.lib import utils
+from dp import utils
 from face import Face, FaceEmbedding, FaceRecognition
 
 # log init
@@ -28,7 +28,7 @@ face_reco.face_sorting(extract_path, output_path)
 i = 0
 for file in os.listdir(extract_path):
     i +=1
-    if file in utils.SKIP:
+    if file in utils.TMPNAMES:
         continue
     faceids = face_reco.get_faceids(extract_path + file)
     if len(faceids) == 0:
@@ -37,7 +37,7 @@ for file in os.listdir(extract_path):
     faceid = faceids[0]['faceid']
     weight = round(faceids[0]['weight'], 2)
     utils.mkdir(output_path + faceid)
-    ret = utils.move_file(extract_path + file, output_path + faceid + '/' + file)
+    ret = utils.mv(extract_path + file, output_path + faceid + '/' + file)
     logging.info("TEST move file {}: {} {}  {} -> {}".format(i, faceid, weight, extract_path + file, output_path + faceid + '/' + file))
     # break
 

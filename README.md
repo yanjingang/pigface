@@ -1,7 +1,7 @@
 ## 人脸识别
 http://blog.yanjingang.com/?p=2422
 
-*因utils依赖的原因需要pip install piglab 或者 把项目clone到piglab/machinelearning/models目录下
+*pip install pydp
 ### 方式一：模型训练（每个人需要300+照片）
 捕获摄像头中的人脸:  
 ```

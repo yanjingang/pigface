@@ -39,8 +39,8 @@ CUR_PATH = os.path.dirname(os.path.abspath(__file__))
 BASE_PATH = os.path.realpath(CUR_PATH + '/../../../')
 sys.path.append(BASE_PATH)
 
-from machinelearning.lib import utils
-from machinelearning.lib.pygui import PySimpleGUI as sg
+from dp import utils
+from dp.pygui import PySimpleGUI as sg
 import facenet
 
 
