@@ -483,7 +483,7 @@ class FaceRecognition():
         return faceids
 
     def get_camera_face_cv2(self, camera_id=0, window_name="Camera Face (process Q to exit)", zoom=0.5):
-        """捕获摄像头中的人脸 - 使用cv2窗口展示"""
+        """捕获摄像头中的人脸 - 使用cv2窗口展示(已停用，替代函数为get_camera_face)"""
         faceids = []
         process_this_frame = True
         video_capture = cv2.VideoCapture(camera_id)
@@ -529,6 +529,42 @@ class FaceRecognition():
         # Release handle to the webcam
         video_capture.release()
         cv2.destroyAllWindows()
+
+    def get_camera_face(self, camera_id=0, max_face=11):
+        """捕获摄像头中的人脸 - 使用自定义window展示"""
+        # 摄像头当前数据
+        camera_data = {
+            'camera': {  # 界面上方摄像头区域数据
+                'filename': '',
+                'faceids': []
+            },
+            'face': {  # 界面下方捕获人脸区域数据
+                'catch': {},
+                'list': [],
+                'list_info': {
+                    'lastfaceid': '',
+                    'lasttime': 0,
+                },
+            }
+        }
+
+        # open camera
+        self.video_capture = cv2.VideoCapture(camera_id)
+
+        # clear tmp file
+        utils.rmdir(self.DATA_PATH + 'tmp')
+        utils.mkdir(self.DATA_PATH + 'tmp')
+
+        # 后台异步线程-更新摄像头当前数据
+        Thread(target=self._get_camera_face_image, args=(camera_data, 20, max_face), daemon=True).start()
+        # 后台异步线程-清理摄像头临时数据
+        Thread(target=self._clear_tmp_path, args=(camera_data, 2000), daemon=True).start()
+
+        # 创建视频人脸监控windows窗口，展示摄像头当前数据
+        self._show_camera_face_window(camera_data, max_face=max_face)
+
+        # close camera
+        self.video_capture.release()
 
     def _get_camera_face_image(self, camera_data, run_freq=100, max_face=11, zoom=0.5):
         """更新摄像头当前数据"""
@@ -661,7 +697,7 @@ class FaceRecognition():
                     window.Refresh()
                     # 重要人物刚出现时报警
                     if len(camera_data['face']['list']) > 0 and time.time() - camera_data['face']['list'][-1]['lasttime'] < 2.0 and camera_data['face']['list'][-1]['faceid'] in warning_faceids:
-                        #utils.play_sound('warning0.wav')
+                        # utils.play_sound('warning0.wav')
                         Thread(target=utils.play_sound, daemon=True).start()
                 logging.debug('___show_camera_face_window__ done')
 
@@ -686,42 +722,6 @@ class FaceRecognition():
                     os.unlink(tmp_path + '/' + file)
                     logging.debug('clear tmp file: {}'.format(file))
             logging.debug('___clear_tmp_path__ done')
-
-    def get_camera_face(self, camera_id=0, max_face=11):
-        """捕获摄像头中的人脸 - 使用自定义window展示"""
-        # 摄像头当前数据
-        camera_data = {
-            'camera': {  # 界面上方摄像头区域数据
-                'filename': '',
-                'faceids': []
-            },
-            'face': {  # 界面下方捕获人脸区域数据
-                'catch': {},
-                'list': [],
-                'list_info': {
-                    'lastfaceid': '',
-                    'lasttime': 0,
-                },
-            }
-        }
-
-        # open camera
-        self.video_capture = cv2.VideoCapture(camera_id)
-
-        # clear tmp file
-        utils.rmdir(self.DATA_PATH + 'tmp')
-        utils.mkdir(self.DATA_PATH + 'tmp')
-
-        # 后台异步线程-更新摄像头当前数据
-        Thread(target=self._get_camera_face_image, args=(camera_data, 20, max_face), daemon=True).start()
-        # 后台异步线程-清理摄像头临时数据
-        Thread(target=self._clear_tmp_path, args=(camera_data, 2000), daemon=True).start()
-
-        # 创建视频人脸监控windows窗口，展示摄像头当前数据
-        self._show_camera_face_window(camera_data, max_face=max_face)
-
-        # close camera
-        self.video_capture.release()
 
     def face_sorting(self, extract_path, output_path):
         """按faceid自动分拣face到不同目录（建议调用此函数前，先进行照片extract face提取）
@@ -750,9 +750,10 @@ class FaceRecognition():
             logging.info("auto_sorting face file {}: {} {}  {} -> {}".format(i, faceid, round(faceids[0]['weight'], 2), source_file, target_file))
             # break
 
+
 if __name__ == '__main__':
     """test"""
-    ftype = 'get_camera_face'
+    ftype = 'face_recognition_camera'
     if len(sys.argv) >= 2:
         ftype = sys.argv[1]
     face = Face()
@@ -843,5 +844,5 @@ if __name__ == '__main__':
         extract_path = '/Users/yanjingang/project/faceswap/data/extract/input/'  # 要分拣的视频extract目录
         output_path = '/Users/yanjingang/project/faceswap/data/extract/output/'  # 分拣结果输出位置
         face_reco = FaceRecognition(faceid_path)
-        while True: #边提取边分拣
+        while True:  # 边提取边分拣
             face_reco.face_sorting(extract_path, output_path)
