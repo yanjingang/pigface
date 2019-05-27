@@ -4,7 +4,7 @@
 File: api_face.py
 Desc: 人脸识别 API 封装
 Demo: 
-    cd /home/work/piglab/webservice/service/ && nohup python api_face.py > log/api_face.log &
+    nohup python api_face.py > log/api_face.log &
     
     http://www.yanjingang.com:8025/piglab/face?img_file=/home/work/piglab/machinelearning/image/face/data/facedb/test/1.png
 
@@ -31,7 +31,7 @@ CUR_PATH = os.path.dirname(os.path.abspath(__file__))
 BASE_PATH = os.path.realpath(CUR_PATH + '/../../')
 sys.path.append(BASE_PATH)
 # print(CUR_PATH, BASE_PATH)
-from machinelearning.lib import utils
+from dp import utils
 from face import Face, FaceEmbedding, FaceRecognition
 
 #face embedding obj
@@ -99,7 +99,7 @@ class ApiFace(tornado.web.RequestHandler):
                 if os.path.exists(faceid_file):
                     utils.mkdir(FaceRecognition.FACE_DB_PATH + '/faceid.bak/')
                     bak_file = FaceRecognition.FACE_DB_PATH + '/faceid.bak/' + faceid +'.'+ str(time.time()) + '.jpg'
-                    utils.copy_file(faceid_file, bak_file)
+                    utils.cp(faceid_file, bak_file)
                     logging.warning("face_register exists faceid backup! {} -> {}".format(faceid_file, bak_file))
                     msg = 'faceid exists, backup done!'
                 '''

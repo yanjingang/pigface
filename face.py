@@ -39,8 +39,8 @@ CUR_PATH = os.path.dirname(os.path.abspath(__file__))
 BASE_PATH = os.path.realpath(CUR_PATH + '/../../../')
 sys.path.append(BASE_PATH)
 
-from machinelearning.lib import utils
-from machinelearning.lib.pygui import PySimpleGUI as sg
+from dp import utils
+from dp.pygui import PySimpleGUI as sg
 import facenet
 
 
@@ -179,7 +179,7 @@ class Face():
         result = {}  # 捕获的人脸图片量
 
         for img_file in os.listdir(src_path):
-            if img_file in utils.SKIP:
+            if img_file in utils.TMPNAMES:
                 continue
             logging.debug(src_path + img_file)
             # 从图片中提取人脸
@@ -205,7 +205,7 @@ class Face():
         # create
         num = {'train': 0, 'test': 0, 'users': {}}
         for uname in os.listdir(Face.FACE_PATH):
-            if uname in utils.SKIP:
+            if uname in utils.TMPNAMES:
                 continue
             if uname not in num['users']:
                 num['users'][uname] = 0
@@ -216,7 +216,7 @@ class Face():
                 continue
             source_files = random.sample(source_files, limit)  # 每个user随机抽取limit个face
             for source_file in source_files:
-                if source_file in utils.SKIP:
+                if source_file in utils.TMPNAMES:
                     continue
                 num['users'][uname] += 1
                 source_file = Face.FACE_PATH + uname + '/' + source_file
@@ -273,7 +273,7 @@ class FaceEmbedding:
             img_path = CUR_PATH + '/data/facedb/faceid/'
         facedb = []
         for img_file in os.listdir(img_path):
-            if img_file in utils.SKIP:
+            if img_file in utils.TMPNAMES:
                 continue
             img_file = img_path + img_file
             # logging.debug("img_file: {}".format(img_file))
@@ -427,7 +427,7 @@ class FaceRecognition():
 
         self.facedb, self.facenames = [], []
         for img_file in os.listdir(img_path):
-            if img_file in utils.SKIP:
+            if img_file in utils.TMPNAMES:
                 continue
             image = face_recognition.load_image_file(img_path + img_file)
             emb = face_recognition.face_encodings(image)[0]
@@ -737,7 +737,7 @@ class FaceRecognition():
         for file in os.listdir(extract_path):
             i += 1
             source_file = extract_path + file
-            if file in utils.SKIP or os.path.exists(source_file) is False:
+            if file in utils.TMPNAMES or os.path.exists(source_file) is False:
                 continue
             faceids = self.get_faceids(source_file)
             if len(faceids) == 0:

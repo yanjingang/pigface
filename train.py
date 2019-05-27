@@ -25,8 +25,8 @@ BASE_PATH = os.path.realpath(CUR_PATH + '/../../../')
 sys.path.append(BASE_PATH)
 
 # logging.info(CUR_PATH, BASE_PATH)
-from machinelearning.lib.resnet import resnet_cifar10
-from machinelearning.lib import utils
+from dp.resnet import resnet_cifar10
+from dp import utils
 from face import Face
 
 # label名称
