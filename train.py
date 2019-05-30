@@ -19,12 +19,7 @@ from paddle.fluid.contrib.trainer import *
 from paddle.fluid.contrib.inferencer import *
 import numpy
 
-# PATH
 CUR_PATH = os.path.dirname(os.path.abspath(__file__))
-BASE_PATH = os.path.realpath(CUR_PATH + '/../../../')
-sys.path.append(BASE_PATH)
-
-# logging.info(CUR_PATH, BASE_PATH)
 from dp.resnet import resnet_cifar10
 from dp import utils
 from face import Face
