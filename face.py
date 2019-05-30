@@ -36,8 +36,6 @@ from threading import Thread
 
 # PATH
 CUR_PATH = os.path.dirname(os.path.abspath(__file__))
-BASE_PATH = os.path.realpath(CUR_PATH + '/../../../')
-sys.path.append(BASE_PATH)
 
 from dp import utils
 from dp.pygui import PySimpleGUI as sg
@@ -465,7 +463,7 @@ class FaceRecognition():
             logging.debug('___face_distance__ {}'.format(i))
             distances = face_recognition.face_distance(self.facedb, face_encoding)
             # print(distances)
-            if distances is not None:
+            if distances is not None and len(distances) > 0:
                 distances = list(distances)
                 sort_distances = copy.deepcopy(distances)
                 # print(sort_distances)
