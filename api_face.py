@@ -6,7 +6,7 @@ Desc: 人脸识别 API 封装
 Demo: 
     nohup python api_face.py > log/api_face.log &
     
-    http://www.yanjingang.com:8025/piglab/face?img_file=/home/work/piglab/machinelearning/image/face/data/facedb/test/1.png
+    http://www.yanjingang.com:8025/piglab/face?img_file=/home/work/project/pigface/data/facedb/test/1.png
 
     ps aux | grep api_face.py |grep -v grep| cut -c 9-15 | xargs kill -9
 Author: yanjingang(yanjingang@mail.com)
