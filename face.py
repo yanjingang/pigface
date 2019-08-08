@@ -432,6 +432,13 @@ class FaceRecognition():
             self.facedb.append(emb)
             self.facenames.append(img_file.split('.')[0])
 
+    def append_facedb(self, faceid_file, faceid):
+        """添加单个人脸到FaceDB字典"""
+        image = face_recognition.load_image_file(faceid_file)
+        emb = face_recognition.face_encodings(image)[0]
+        self.facedb.append(emb)
+        self.facenames.append(faceid)
+
     def get_faceids(self, img_file=None, image=None, zoom=0.5):
         """计算指定图片中的人脸与facedb中各faceid的距离（距离越小越像, <0.6可以确信是同一个人, >1不可信）"""
         logging.info("__get_faceids__")

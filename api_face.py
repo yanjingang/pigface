@@ -31,7 +31,7 @@ from dp import utils
 from face import Face, FaceEmbedding, FaceRecognition
 
 #face embedding obj
-#face_embed = FaceEmbedding()
+#face_reco = FaceEmbedding()
 #face recognition obj
 face_reco = FaceRecognition()
 pinyin = Pinyin()
@@ -82,34 +82,34 @@ class ApiFace(tornado.web.RequestHandler):
  
         try:
             if req_type=='face_catch':
-                #ret = face_embed.get_faceids(img_file)
                 ret = face_reco.get_faceids(img_file)
                 for face in ret:
                     res.append({'src': img_file, 'embedding': True, 'faceid': face['faceid'], 'weight': face['weight'], 'rect': face['rect']})
                 return {'code': 0, 'msg': msg, 'data': res}
             elif req_type=='face_register':
+                print(face_info)
                 faceid = pinyin.get_pinyin(face_info['faceid'], "")
+                print(faceid)
                 # faceid exists check
-                #facedb_path = os.path.dirname(face_embed.faceid_embedding_db)
-                faceid_file = FaceRecognition.FACE_DB_PATH + '/faceid/' + faceid + '.jpg'
+                faceid_file = '{}faceid/{}.{}.jpg'.format(FaceRecognition.FACE_DB_PATH, faceid, face_info['faceid'].replace('.', '_'))
+                print(faceid_file)
                 if os.path.exists(faceid_file):
-                    utils.mkdir(FaceRecognition.FACE_DB_PATH + '/faceid.bak/')
-                    bak_file = FaceRecognition.FACE_DB_PATH + '/faceid.bak/' + faceid +'.'+ str(time.time()) + '.jpg'
+                    utils.mkdir(FaceRecognition.FACE_DB_PATH + 'faceid.bak/')
+                    bak_file = FaceRecognition.FACE_DB_PATH + 'faceid.bak/' + faceid +'.'+ str(time.time()) + '.jpg'
                     utils.cp(faceid_file, bak_file)
                     logging.warning("face_register exists faceid backup! {} -> {}".format(faceid_file, bak_file))
                     msg = 'faceid exists, backup done!'
-                '''
                 # faceid write
                 x, y, x2, y2 = face_info['rect']
                 img = cv2.imread(face_info['src'], 1)
                 cv2.imwrite(faceid_file, img[y:y2, x:x2])
-                logging.warning("face_register new faceid save! {}".format(faceid_file)) 
+                logging.info("face_register new faceid save! {}".format(faceid_file)) 
                 # reload facedb
-                face_embed.create_face_db()
-                logging.warning("face_register reload facedb! size: {}".format(len(face_embed.facedb)))
-                if len(face_embed.facedb)==0:
+                #face_reco.create_face_db()
+                face_reco.append_facedb(faceid_file, faceid)
+                logging.warning("face_register reload facedb! size: {}".format(len(face_reco.facedb)))
+                if len(face_reco.facedb)==0:
                     return {'code': 4, 'msg': '注册失败', 'data': res} 
-                '''
         except:
             logging.error('execute fail [' + img_file + '] ' + utils.get_trace())
             return {'code': 5, 'msg': '请求失败', 'data': res}
@@ -141,7 +141,8 @@ if __name__ == '__main__':
             # 0.初始化
             face_embed.init(sess, reset_facedb=False)
     '''
-    # 1.启动api服务
+
+    # 启动api服务
     http_server = tornado.httpserver.HTTPServer(app, xheaders=True)
     http_server.listen(port)
     tornado.ioloop.IOLoop.instance().start()
