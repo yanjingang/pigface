@@ -13,6 +13,8 @@ Author: yanjingang(yanjingang@mail.com)
 Date: 2019/2/26 16:08
 """
 
+from dp.face import Face
+from dp import utils
 import sys
 import os
 import json
@@ -27,14 +29,11 @@ import tornado.httpserver
 from xpinyin import Pinyin
 
 CUR_PATH = os.path.dirname(os.path.abspath(__file__))
-from dp import utils
-from face import Face, FaceEmbedding, FaceRecognition
 
-#face embedding obj
-#face_reco = FaceEmbedding()
-#face recognition obj
-face_reco = FaceRecognition()
+# init face
+face_reco = Face(CUR_PATH+'/data/facedb/faceid/')
 pinyin = Pinyin()
+
 
 class ApiFace(tornado.web.RequestHandler):
     """API逻辑封装"""
@@ -69,47 +68,30 @@ class ApiFace(tornado.web.RequestHandler):
         img_file = self.get_argument('img_file', '')
         face_info = self.get_argument('face_info', {})
         if type(face_info) is str:
-            face_info =  json.loads(face_info)
+            face_info = json.loads(face_info)
         logging.debug("req_type: ".format(req_type))
         logging.debug("img_file: ".format(img_file))
         logging.debug("face_info: ".format(face_info))
-        if req_type=='face_catch' and img_file == '':	#人脸捕获识别
+        if req_type == 'face_catch' and img_file == '':  # 人脸捕获识别
             return {'code': 2, 'msg': 'img_file不能为空'}
-        if req_type=='face_register' and len(face_info)==0:	#人脸注册
+        if req_type == 'face_register' and len(face_info) == 0:  # 人脸注册
             return {'code': 3, 'msg': 'face_info不能为空'}
         res = []
-        msg = 'success' 
- 
+        msg = 'success'
+
         try:
-            if req_type=='face_catch':
+            # 人脸捕获
+            if req_type == 'face_catch':
                 ret = face_reco.get_faceids(img_file)
                 for face in ret:
-                    res.append({'src': img_file, 'embedding': True, 'faceid': face['faceid'], 'weight': face['weight'], 'rect': face['rect']})
+                    res.append({'src': img_file, 'faceid': face['faceid'], 'facename': face['facename'], 'weight': face['weight'], 'rect': face['rect']})
                 return {'code': 0, 'msg': msg, 'data': res}
-            elif req_type=='face_register':
-                print(face_info)
-                faceid = pinyin.get_pinyin(face_info['faceid'], "")
-                print(faceid)
-                # faceid exists check
-                faceid_file = '{}faceid/{}.{}.jpg'.format(FaceRecognition.FACE_DB_PATH, faceid, face_info['faceid'].replace('.', '_'))
-                print(faceid_file)
-                if os.path.exists(faceid_file):
-                    utils.mkdir(FaceRecognition.FACE_DB_PATH + 'faceid.bak/')
-                    bak_file = FaceRecognition.FACE_DB_PATH + 'faceid.bak/' + faceid +'.'+ str(time.time()) + '.jpg'
-                    utils.cp(faceid_file, bak_file)
-                    logging.warning("face_register exists faceid backup! {} -> {}".format(faceid_file, bak_file))
-                    msg = 'faceid exists, backup done!'
-                # faceid write
-                x, y, x2, y2 = face_info['rect']
-                img = cv2.imread(face_info['src'], 1)
-                cv2.imwrite(faceid_file, img[y:y2, x:x2])
-                logging.info("face_register new faceid save! {}".format(faceid_file)) 
-                # reload facedb
-                #face_reco.create_face_db()
-                face_reco.append_facedb(faceid_file, faceid)
-                logging.warning("face_register reload facedb! size: {}".format(len(face_reco.facedb)))
-                if len(face_reco.facedb)==0:
-                    return {'code': 4, 'msg': '注册失败', 'data': res} 
+            # 人脸注册
+            elif req_type == 'face_register':
+                faceid = face_reco.register_faceid(face_info['src'], name=face_info['faceid'], rect=face_info['rect'])
+                logging.warning("face_register {} done! facedb size:{}".format(faceid, len(face_reco.facedb)))
+                if len(face_reco.facedb) == 0:
+                    return {'code': 4, 'msg': '注册失败', 'data': res}
         except:
             logging.error('execute fail [' + img_file + '] ' + utils.get_trace())
             return {'code': 5, 'msg': '请求失败', 'data': res}
@@ -146,5 +128,3 @@ if __name__ == '__main__':
     http_server = tornado.httpserver.HTTPServer(app, xheaders=True)
     http_server.listen(port)
     tornado.ioloop.IOLoop.instance().start()
-
-
